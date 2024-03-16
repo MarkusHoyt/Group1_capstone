@@ -1,4 +1,4 @@
-# Group1_capstone
+# Team1_capstone
 
 Proposed working project title
 
