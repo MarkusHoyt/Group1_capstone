@@ -2,7 +2,15 @@
 
 # Data found on https://www.cdc.gov/nchs/nhis/2022nhis.htm
 
-# In this R file, we took all the downloaded CSVs for the data that we were interested in combined them into one final data frame which was then exported as a .csv and further cleaned during EDA.
+# In this R file, we took all the downloaded CSVs for the data that we were interested in and combined them into one final data frame, which was then exported as a .csv and further cleaned during EDA.
+
+# After creating the combined data set, the team went through the features one at a time on Excel and trimmed down from 400 features to 38 features
+# URBRRL	RACEALLP_A	DISAB3_A	CITZNSTP_A	LEGMSTAT_A	FDSCAT4_A	SMKECIGST_A	SMKCIGST_A	BMICAT_A	WEIGHTLBTC_A	HEIGHTTC_A	URGNT12MTC_A	EMERG12MTC_A	NOTCOV_A	
+# PARSTAT_A	MLTFAMFLG_A	NUMCAN_A	HISP_A	REGION SRVY_YR	SEX_A	AGEP_A	HOUTENURE_A	FSNAP12M_A	SCHCURENR_A	DEPLEVEL_A	ANXLEVEL_A	PAYWORRY_A	DIBTYPE_A	PREDIB_A	
+# ASEV_A	STREV_A	MIEV_A	ANGEV_A	CHDEV_A	CHLEV_A	HYPEV_A	PHSTAT_A	POVRATTC_A
+
+# These features were selected due to their relevance with socioeconomic data and general demographic data that we were interested in modeling. Many variables within the 400 were redundant or ways of 
+# representing similar data.
 
 library(dplyr)
 
