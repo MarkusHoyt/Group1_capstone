@@ -14,3 +14,22 @@ Hypothesis: There is a connection between a person’s responses to specific NHI
 Prediction: Based on health and lifestyle factors from the NHIS dataset, we predict that we will be able to classify whether or not a patient has Type 2 diabetes based on their responses to specific NHIS questions.
 
 
+# Data Files
+
+The CSV files were taken from https://www.cdc.gov/nchs/nhis/2022nhis.htm
+
+2019 - 2022 data was used. Methodology changed between 2018 and 2019, so data from 2018 and before were not compatible with 2019-2022
+adult19.csv
+adult20.csv
+adult21.csv
+adult22.csv
+
+# Data Combination
+
+The R file used to combine the data was:
+
+NHISData_Total.R 
+
+# Finalized Data Set
+
+Using Excel, we reduced the 
