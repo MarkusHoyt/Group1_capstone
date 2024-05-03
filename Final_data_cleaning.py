@@ -2,15 +2,12 @@
 """
 Created on Fri Mar 29 18:20:14 2024
 
-@author: markt
+@author: markthoyt
 """
 import pandas as pd
 
-#data = pd.read_csv("/Users/markt/Downloads/Final_Data.csv")
-
-#---
-#data = data[['points', 'blocks']]
-
+#loading data
+#MH
 data1 = pd.read_csv('nhis_adult_2019to2022_short.csv')
 data2 = pd.read_csv('nhis_adult_2019to2022.csv')
 col = data1.columns
@@ -21,17 +18,21 @@ data = data2[col]
 
 shape = data.shape
 print("Shape = {}".format(shape))
-#
+
 
 
 # Counting NaN values in all columns
+#MH
 nan_count = data1.isna().sum()
 
 print(nan_count)
 
 #dropping NA from all columns that only has 1
-#data = data.dropna(subset=['REGION', 'HISP_A', 'SRVY_YR', 'SEX_A', 'AGEP_A', 'HOUTENURE_A', 'FSNAP12M_A', 'SCHCURENR_A', 'PAYWORRY_A', 'PREDIB_A', 'ASEV_A', 'STREV_A', 'MIEV_A', 'ANGEV_A', 'CHDEV_A', 'CHLEV_A', 'HYPEV_A', 'PHSTAT_A', 'POVRATTC_A'])
+#MH
+data = data.dropna(subset=['REGION', 'HISP_A', 'SRVY_YR', 'SEX_A', 'AGEP_A', 'HOUTENURE_A', 'FSNAP12M_A', 'SCHCURENR_A', 'PAYWORRY_A', 'PREDIB_A', 'ASEV_A', 'STREV_A', 'MIEV_A', 'ANGEV_A', 'CHDEV_A', 'CHLEV_A', 'HYPEV_A', 'PHSTAT_A', 'POVRATTC_A'])
 
+#dropping columns with vulues 7,8,9 in them. Thes represent Did not acertain, unkown, and Not applicable
+#MH
 data = data.drop(data[data['SEX_A'] == 9].index)
 data = data.drop(data[data['SEX_A'] == 7].index)
 
@@ -132,14 +133,17 @@ data = data.drop(data[data['HOUTENURE_A'] == 7].index)
 
 data = data.fillna(0)
 
+#saving the cleaned data to a new CSV for ease of use in Future cases
+#MH
 data.to_csv('Clean_Data.csv', index=False)
+
 # Make NA in DIBTYPE_A 0
+#MH
 data['DIBTYPE_A'] = data['DIBTYPE_A'].fillna(0)
 
 
-# Change column A's values to a numeric type
-#data['DIBTYPE_A'] = pd.to_numeric(data['DIBTYPE_A'])
-
+# Change column A's values to a numeric type to make DIA_STATUS column
+#MH
 data['Combined'] = data['PREDIB_A'] + data['DIBTYPE_A']
 
 data.loc[data["Combined"] == 2, "Combined"] = 0
@@ -156,58 +160,9 @@ data.rename(columns = {'Combined':'DIA_STATUS'}, inplace = True)
 
 print(data['DIA_STATUS'].value_counts())
 
-#Visualization
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
 
-sns.catplot(data=data, x="REGION", y="POVRATTC_A", hue="DIA_STATUS")
-
-# Select ratio
-ratio = 0.99
- 
-total_rows = data.shape[0]
-train_size = int(total_rows*ratio)
- 
-# Split data into test and train
-train = data[0:train_size]
-test = data[train_size:]
-
-sns.catplot(data=test, x="REGION", y="POVRATTC_A", hue="DIA_Group")
-
-sns.boxplot(x="REGION", y="POVRATTC_A", data=data,palette='rainbow')
-
-
-from tableone import TableOne, load_dataset
-
-for col in data.columns:
-    print(col)
-    
-    
-columns = ['SRVY_YR','URBRRL','REGION','AGEP_A','SEX_A','HISP_A','RACEALLP_A','MLTFAMFLG_A','PHSTAT_A','HYPEV_A','CHLEV_A','ANGEV_A','MIEV_A','STREV_A','ASEV_A','NUMCAN_A','HEIGHTTC_A','WEIGHTLBTC_A','BMICAT_A','DISAB3_A','NOTCOV_A','PAYWORRY_A','URGNT12MTC_A','EMERG12MTC_A','ANXLEVEL_A','DEPLEVEL_A','SMKCIGST_A','SMKECIGST_A','LEGMSTAT_A','PARSTAT_A','CITZNSTP_A','SCHCURENR_A','POVRATTC_A','FSNAP12M_A','FDSCAT4_A','HOUTENURE_A','CHDEV_A','DIA_STATUS']
-categorical = ['DIA_STATUS', 'SRVY_YR']
-
-groupby = ['DIA_STATUS', 'SRVY_YR']
-mytable = TableOne(data, columns=columns, categorical=categorical, groupby=groupby, pval=False)
-
-print(mytable.tabulate(tablefmt = "fancy_grid"))
-
-mytable.to_excel('mytable.xlsx')
-
-
-from patsy import dmatrices
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-
-y, X = dmatrices('DIA_STATUS ~ SRVY_YR+URBRRL+REGION+AGEP_A+SEX_A+HISP_A+RACEALLP_A+MLTFAMFLG_A+PHSTAT_A+HYPEV_A+CHLEV_A+ANGEV_A+MIEV_A+STREV_A+ASEV_A+NUMCAN_A+HEIGHTTC_A+WEIGHTLBTC_A+BMICAT_A+DISAB3_A+NOTCOV_A+PAYWORRY_A+URGNT12MTC_A+EMERG12MTC_A+ANXLEVEL_A+DEPLEVEL_A+SMKCIGST_A+SMKECIGST_A+LEGMSTAT_A+PARSTAT_A+CITZNSTP_A+SCHCURENR_A+POVRATTC_A+FSNAP12M_A+FDSCAT4_A+HOUTENURE_A+CHDEV_A+DIA_STATUS', data=data, return_type='dataframe')
-
-vif_df = pd.DataFrame()
-vif_df['variable'] = X.columns
-
-vif_df['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
-
-print(vif_df)
-vif_df.to_excel('vif_df.xlsx')
-
+#Changing Dibetes status to categorical for future use
+#MH
 def get_dia_status(DIA_STATUS):
     if DIA_STATUS == 0:
         return 'Non-Diabetic'
@@ -218,10 +173,10 @@ def get_dia_status(DIA_STATUS):
     else:
         return 'Type 2 Diabetes'
     
-    
-
 data['DIA_Group'] = data['DIA_STATUS'].apply(get_dia_status)
 
+#Changing Region status to categorical for future use
+#MH
 def get_Region(REGION):
     if REGION == 1:
         return 'Northeast'
@@ -232,10 +187,10 @@ def get_Region(REGION):
     else:
         return 'West'
     
-    
-
 data['Region_Group'] = data['REGION'].apply(get_Region)
 
+#Changing Gender status to categorical for future use
+#MH
 def get_Gender(SEX_A):
     if SEX_A == 1:
         return 'Male'
@@ -244,6 +199,8 @@ def get_Gender(SEX_A):
     
 data['Gender_Group'] = data['SEX_A'].apply(get_Gender)
 
+#Changing PH status to categorical for future use
+#MH
 def Health(PHSTAT_A):
     if PHSTAT_A == 1:
         return 'Excellent'
@@ -258,6 +215,8 @@ def Health(PHSTAT_A):
 
 data['Health_Status'] = data['PHSTAT_A'].apply(Health)
 
+#Changing BMI Category to categorical for future use
+#MH
 def BMI(BMICAT_A):
     if BMICAT_A == 1:
         return 'Underweight'
@@ -271,12 +230,14 @@ def BMI(BMICAT_A):
 data['BMI_Category'] = data['BMICAT_A'].apply(BMI)
 
 
-
+#getting a description of the data
+#MH
 Descriptive = data.describe(include='object')
 
+#precentages
+#MH
 descriptive2 = data.describe(percentiles=[])
 
+#removign a row
+#MH
 data = data.iloc[:,:-5]
-
-sns.pairplot(data)
-plt.show()
